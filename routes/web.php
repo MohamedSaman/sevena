@@ -11,6 +11,7 @@ use App\Livewire\Staff\SalaryManagement;
 use App\Livewire\Staff\ProductionManagement;
 use App\Livewire\Staff\SettingManagement;
 use App\Livewire\Staff\LoanManagement;
+use App\Livewire\Staff\AttendanceManagement;
 
 
 
@@ -56,6 +57,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/production-management', ProductionManagement::class)->name('production-management');
         Route::get('/setting-management', SettingManagement::class)->name('setting-management');
         Route::get('/staff/loan-management', LoanManagement::class)->name('loan-management');
+        Route::get('/attendance-management', AttendanceManagement::class)->name('attendance-management');
 
         
     });

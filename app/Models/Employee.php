@@ -39,5 +39,9 @@ class Employee extends Model
     {
         return $this->hasMany(WorkLogs::class, 'employee_id', 'emp_id');
     }
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'employee_id', 'emp_id');
+    }
 
 }

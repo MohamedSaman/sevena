@@ -138,6 +138,12 @@
                                 <i class="fas fa-money-bill-wave text-gray-500 w-6 text-center"></i>
                                 <p class="text-[#0d151c] text-sm font-medium leading-normal">Salary</p>
                             </a>
+                            <a href="{{ route('staff.attendance-management') }}"
+                                class="nav-item {{ request()->routeIs('staff.attendance-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2"
+                                data-module="attendance">
+                                <i class="fas fa-calendar-check text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Attendance</p>
+                            </a>
                             <a href="{{ route('staff.loan-management') }}"
                                 class="nav-item {{ request()->routeIs('staff.loan-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2"
                                 data-module="loan">
@@ -224,6 +230,143 @@
             sidebar.classList.toggle('hidden');
         });
     </script>
+<script>
+    document.addEventListener('livewire:init', function () {
+        Livewire.on('print-payslip', function (salaryBreakdown) {
+            console.log('Received salary breakdown:', salaryBreakdown);
+            
+            // Create a helper function to safely access and format values
+            const getValue = (key, defaultValue = 0) => {
+                if (!salaryBreakdown || !salaryBreakdown.hasOwnProperty(key)) {
+                    return defaultValue;
+                }
+                const value = salaryBreakdown[key];
+                
+                // Handle numeric values that might be strings
+                if (typeof value === 'string' && value.trim() !== '') {
+                    return parseFloat(value) || defaultValue;
+                }
+                
+                return value || defaultValue;
+            };
+
+            try {
+                // Use the helper function to get all values
+                const employee_name = getValue('employee_name', 'Unknown');
+                const month_name = getValue('month_name', 'N/A');
+                const year = getValue('year', 'N/A');
+                const basic_salary = getValue('basic_salary');
+                const production_bonus = getValue('production_bonus');
+                const overtime = getValue('overtime');
+                const allowances = getValue('allowances');
+                const gross_salary = getValue('gross_salary');
+                const epf = getValue('epf');
+                const etf = getValue('etf');
+                const loan_deductions = getValue('loan_deductions');
+                const other_deductions = getValue('other_deductions');
+                const net_salary = getValue('net_salary');
+
+                const printContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; width: 100%; max-width: 600px; margin: 0 auto;">
+                        <h1 style="text-align: center; margin-bottom: 20px;">Payslip</h1>
+                        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 5px;">
+                            <p><strong>Employee Name:</strong> ${employee_name}</p>
+                            <p><strong>Period:</strong> ${month_name} ${year}</p>
+                            
+                            <h3 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Earnings</h3>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Basic Salary:</span>
+                                <span>LKR ${basic_salary.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Production Bonus:</span>
+                                <span>LKR ${production_bonus.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Overtime:</span>
+                                <span>LKR ${overtime.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Allowances:</span>
+                                <span>LKR ${allowances.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+                                <span>Gross Salary:</span>
+                                <span>LKR ${gross_salary.toFixed(2)}</span>
+                            </div>
+                            
+                            <h3 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Deductions</h3>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>EPF (8%):</span>
+                                <span>LKR ${epf.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>ETF (3%):</span>
+                                <span>LKR ${etf.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Loan Deductions:</span>
+                                <span>LKR ${loan_deductions.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Other Deductions:</span>
+                                <span>LKR ${other_deductions.toFixed(2)}</span>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                                <span>Net Salary:</span>
+                                <span>LKR ${net_salary.toFixed(2)}</span>
+                            </div>
+                            
+                            <div style="margin-top: 30px; text-align: center; font-style: italic;">
+                                Generated on ${new Date().toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const printWindow = window.open('', '_blank', 'height=700,width=800');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Payslip - ${employee_name}</title>
+                            <style>
+                                body { 
+                                    font-family: Arial, sans-serif; 
+                                    margin: 0; 
+                                    padding: 20px; 
+                                    color: #333;
+                                    background-color: white;
+                                }
+                                h1, h2, h3 { 
+                                    color: #2c3e50; 
+                                }
+                                @media print {
+                                    body { 
+                                        -webkit-print-color-adjust: exact; 
+                                        print-color-adjust: exact;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body>${printContent}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                
+                // Wait for content to load before printing
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            } catch (error) {
+                console.error('Error printing payslip:', error);
+                alert('Failed to print payslip. Please check console for details.');
+            }
+        });
+    });
+</script>
+
 
     @livewireScripts
 </body>
