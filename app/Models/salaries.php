@@ -12,8 +12,8 @@ class salaries extends Model
     protected $primaryKey = 'salary_id';
 
     protected $fillable = [
-        'employee_id', 'salary_month', 'salary_type', 'basic_salary',
-        'bonus', 'allowance', 'deductions', 'net_salary', 'payment_status',
+        'employee_id', 'salary_month', 'salary_type', 'basic_salary','total_hours','overtime_hours',
+        'bonus', 'allowance', 'deductions', 'net_salary', 'payment_status', 'basic_worked', 'overtime'
     ];
 
     public function employee()

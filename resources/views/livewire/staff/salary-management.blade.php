@@ -75,18 +75,30 @@
             @if ($salaryBreakdown)
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+
                     <div class="flex justify-between py-3 border-b">
-                        <span>Basic Salary</span>
+                        <span>
+                            Basic Salary ({{ $totalWorkedHours }} hours )
+                            {{-- {{ $salaryBreakdown['work_days'] }} days --}}
+                        </span>
                         <span>LKR {{ number_format($salaryBreakdown['basic_salary'], 2) }}</span>
+                    </div>
+                    <div class="flex justify-between py-3 border-b">
+                        <span>
+                            Overtime
+                            @if($salaryBreakdown['overtime_hours'] > 0)
+                            <p class="text-xs text-gray-500 mt-1">
+                                {{ $salaryBreakdown['overtime_hours'] }} hours @ 1.5x rate
+                            </p>
+                            @endif
+                        </span>
+                        <span>LKR {{ number_format($salaryBreakdown['overtime'], 2) }}</span>
                     </div>
                     <div class="flex justify-between py-3 border-b">
                         <span>Production Bonus</span>
                         <span>LKR {{ number_format($salaryBreakdown['production_bonus'], 2) }}</span>
                     </div>
-                    <div class="flex justify-between py-3 border-b">
-                        <span>Overtime</span>
-                        <span>LKR {{ number_format($salaryBreakdown['overtime'], 2) }}</span>
-                    </div>
+
                     <div class="flex justify-between py-3 border-b">
                         <span>Allowances</span>
                         <span>LKR {{ number_format($salaryBreakdown['allowances'], 2) }}</span>
@@ -154,7 +166,7 @@
                             <td class="px-4 py-3">{{ \Carbon\Carbon::parse($salary->salary_month)->format('F Y') }}</td>
                             <td class="px-4 py-3">LKR {{ number_format($salary->basic_salary, 0) }}</td>
                             <td class="px-4 py-3">LKR {{ number_format($salary->bonus, 0) }}</td>
-                            <td class="px-4 py-3">LKR {{ number_format($salary->deductions, 0) }}</td>   
+                            <td class="px-4 py-3">LKR {{ number_format($salary->deductions, 0) }}</td>
                             <td class="px-4 py-3">LKR {{ number_format($salary->net_salary, 0) }}</td>
                             <td class="px-4 py-3">
                                 <span
@@ -200,6 +212,7 @@
                         margin: 0 auto;
                         background: white;
                         color: black;
+                        overflow: hidden;
                     }
 
                     .payslip-header {
@@ -215,7 +228,6 @@
                         position: absolute;
                         top: 1.5rem;
                         right: 1.5rem;
-                        background: #10B981;
                         border-radius: 9999px;
                         width: 12rem;
                         height: 3rem;
@@ -295,7 +307,8 @@
                     <div class="relative">
                         <!-- Logo -->
                         <div class="payslip-logo">
-                            Sevena Industries.
+
+                            <img src="http://127.0.0.1:8000/images/site_logo.png" alt="" srcset="">
                         </div>
 
                         <!-- Header -->
@@ -333,12 +346,18 @@
                                 <!-- Earnings -->
                                 <tr>
                                     <td>Earnings</td>
-                                    <td>Basic Salary</td>
+                                    <td>Basic Salary (<span>{{ $salaryBreakdown['total_hours'] }} hours) </span>
+                                    </td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['basic_salary'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
-                                    <td>Overtime</td>
+                                    <td>Overtime @if($salaryBreakdown['overtime_hours'] > 0)
+                                        
+                                            {{ $salaryBreakdown['overtime_hours'] }} hours @ 1.5x rate
+                                       
+                                        @endif
+                                    </td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['overtime'], 2) }}</td>
                                 </tr>
                                 <tr>
