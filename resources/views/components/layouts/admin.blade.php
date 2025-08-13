@@ -1,767 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Page Title' }}</title>
+    <title>Sevena Payroll Dashboard</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts and Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {{-- <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> --}}
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-    @livewireStyles
- <style>
-        :root {
-            --primary-color: #198754;
-            --secondary-color: #6c757d;
-            --success-color: #198754;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --info-color: #0dcaf0;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --sidebar-width: 280px;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: white;
-            width: var(--sidebar-width);
-            overflow-y: auto;
-        }
-
-        .sidebar-brand {
-            padding: 1rem;
-            font-size: 1.25rem;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .sidebar-section {
-            padding: 0 1rem;
-        }
-
-        .sidebar-heading {
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .sidebar .nav-link {
-            color: #333;
-            padding: 0.75rem 1rem;
-            margin: 0.125rem 0;
+    <!-- Styles -->
+    <style>
+        .form-control {
+            border: 1px solid #d1d5db;
             border-radius: 0.375rem;
-            transition: all 0.15s ease-in-out;
-            display: flex;
-            align-items: center;
+            padding: 0.5rem;
+            font-size: 0.875rem;
         }
 
-        .sidebar .nav-link:hover {
-            background-color: #f8f9fa;
-            color: var(--primary-color);
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
 
-        .sidebar .nav-link.active {
-            background-color: var(--primary-color);
+        .btn-primary {
+            background-color: #3b82f6;
             color: white;
-        }
-
-        .mobile-app-promo {
-            padding: 1rem;
-        }
-
-        /* Main Content */
-        main {
-            margin-left: var(--sidebar-width);
-            padding: 0 2rem;
-        }
-
-        /* Header */
-        header {
-            background-color: white;
-            border-bottom: 1px solid #dee2e6;
-            margin: 0 -2rem 2rem -2rem;
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
-
-        .search-box .form-control {
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            width: 300px;
-        }
-
-        .search-box .input-group-text {
-            border: 1px solid #dee2e6;
-        }
-
-        /* Stats Cards */
-        .stat-card {
+            font-weight: 500;
             border: none;
-            border-radius: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: transform 0.15s ease-in-out;
+            transition: background-color 0.2s;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        .btn-primary:hover {
+            background-color: #2563eb;
         }
 
-        .stat-icon {
-            font-size: 2rem;
-            opacity: 0.7;
-        }
-
-        /* Cards */
         .card {
-            border: none;
-            border-radius: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .card-header {
-            background-color: transparent;
-            border-bottom: 1px solid #dee2e6;
-            padding: 1.5rem 1.5rem 1rem 1.5rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Ground Cards */
-        .ground-card {
-            transition: transform 0.15s ease-in-out;
-        }
-
-        .ground-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        }
-
-        /* Upcoming Bookings */
-        .upcoming-booking {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
-            transition: background-color 0.15s ease-in-out;
-        }
-
-        .upcoming-booking:hover {
-            background-color: #e9ecef;
-        }
-
-        .booking-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: white;
-            border-radius: 50%;
-            font-size: 1.25rem;
-        }
-
-        /* Ground Items */
-        .ground-item {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
-            transition: background-color 0.15s ease-in-out;
-        }
-
-        .ground-item:hover {
-            background-color: #e9ecef;
-        }
-
-        .ground-avatar img {
-            object-fit: cover;
-        }
-
-        /* Schedule Items */
-        .schedule-item {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .schedule-time {
-            min-width: 80px;
-        }
-
-        /* Sport Items */
-        .sport-item {
-            padding: 0.5rem 0;
-        }
-
-        /* Ground Performance */
-        .ground-performance-item {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
+        .tabs-container {
+            border-bottom: 1px solid #e5e7eb;
             margin-bottom: 1rem;
         }
 
-        /* Report Metrics */
-        .report-metric {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
+        .table-container {
+            overflow-x: auto;
         }
 
-        /* Support Items */
-        .support-item {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
+        table {
+            border-collapse: collapse;
         }
 
-        .support-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: white;
-            border-radius: 50%;
-            font-size: 1.25rem;
+        th,
+        td {
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
         }
 
-        /* Status Items */
-        .status-item {
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            background-color: #f8f9fa;
-        }
-
-        /* Tutorial Items */
-        .tutorial-item {
-            cursor: pointer;
-            transition: transform 0.15s ease-in-out;
-        }
-
-        .tutorial-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .tutorial-thumbnail {
-            position: relative;
-            overflow: hidden;
-            border-radius: 0.5rem;
-        }
-
-        .play-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        /* Progress Circle */
-        .progress-circle {
-            position: relative;
-            display: inline-block;
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        /* Time Tracker */
-        .time-display {
-            padding: 2rem 0;
-        }
-
-        #sessionTimer {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-        }
-
-        /* Tables */
-        .table-responsive {
-            border-radius: 0.5rem;
-        }
-
-        .table th {
+        th {
+            background: #f9fafb;
             font-weight: 600;
-            border-bottom: 2px solid #dee2e6;
+            color: #374151;
         }
 
-        .table td {
-            vertical-align: middle;
-        }
-
-        /* Responsive */
-        @media (max-width: 767.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.15s ease-in-out;
+        @media (max-width: 640px) {
+            .table-container {
+                width: 100%;
+                overflow-x: auto;
             }
 
-            .sidebar.show {
-                transform: translateX(0);
+            table {
+                min-width: 640px;
             }
 
-            main {
-                margin-left: 0;
-                padding: 0 1rem;
-            }
-
-            header {
-                margin: 0 -1rem 2rem -1rem;
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-
-            .search-box .form-control {
-                width: 200px;
-            }
-
-            .d-flex.justify-content-between.align-items-center {
+            .flex.flex-col.sm\\:flex-row {
                 flex-direction: column;
-                align-items: stretch !important;
-                gap: 1rem;
             }
 
-            .d-flex.justify-content-between.align-items-center > div:last-child {
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .search-box .form-control {
-                width: 150px;
-            }
-
-            .stat-card .card-body {
-                padding: 1rem;
-            }
-
-            .stat-card h2 {
-                font-size: 1.5rem;
-            }
-
-            .btn {
-                font-size: 0.875rem;
-                padding: 0.375rem 0.75rem;
+            .w-full.sm\\:w-1\/3,
+            .w-full.sm\\:w-2\/3 {
+                width: 100%;
             }
         }
 
-        /* Custom Scrollbar */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
+        .overflow-y-auto::-webkit-scrollbar {
+            display: none;
         }
 
-        .sidebar::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .overflow-y-auto {
+            scrollbar-width: none;
         }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .dashboard-content > * {
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.375rem 0.75rem;
-        }
-
-        /* Button Styles */
-        .btn {
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: all 0.15s ease-in-out;
-        }
-
-        .btn-success {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-success:hover {
-            background-color: #157347;
-            border-color: #146c43;
-        }
-
-        /* Page Transitions */
-        #main-content {
-            animation: fadeInUp 0.3s ease-out;
-        }
-
-        /* Loading States */
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        /* Hover Effects */
-        .btn-group .btn:hover {
-            z-index: 1;
-        }
-
-        /* Form Enhancements */
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-        }
-
-        /* Modal Enhancements */
-        .modal-content {
-            border-radius: 1rem;
-            border: none;
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-        }
-
-        .modal-header {
-            border-bottom: 1px solid #dee2e6;
-            padding: 1.5rem;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding: 1.5rem;
-        }
-
-        /* Accordion Enhancements */
-        .accordion-button {
-            font-weight: 500;
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: rgba(25, 135, 84, 0.1);
-            color: var(--primary-color);
-        }
-
-        /* List Group Enhancements */
-        .list-group-item.active {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        /* Progress Bar Enhancements */
-        .progress {
-            border-radius: 0.5rem;
-        }
-
-        .progress-bar {
-            border-radius: 0.5rem;
-        }
-
-        /* Notification Enhancements */
-        .alert {
-            border-radius: 0.75rem;
-            border: none;
-        }
-
-        /* Print Styles */
-        @media print {
-            .sidebar,
-            .btn,
-            .dropdown {
-                display: none !important;
-            }
-
-            main {
-                margin-left: 0 !important;
-            }
-
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #dee2e6 !important;
-            }
+    
+        [x-cloak] {
+            display: none;
         }
     </style>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    @livewireStyles
+
 </head>
+
 <body>
-
-<div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-1">
-                    <div class="sidebar-brand mb-2">
-                        <div class="d-flex align-items-center gap-0" style="font-size: 1.8rem;">
-                        <span class="fw-bold">IndoorB</span>
-                        <i class="fas fa-futbol text-success"></i>
-                    </div>
-
-                    </div>
-                    
-                    <div class="sidebar-section">
-                        <h6 class="sidebar-heading text-muted text-uppercase">Super Admin</h6>
-                        <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-                            href="{{ route('admin.dashboard') }}" data-section="dashboard">
-                                <i class="fas fa-th-large me-2"></i>
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.indoors') ? 'active' : '' }}"
-                            href="{{ route('admin.indoors') }}" data-section="grounds">
-                                <i class="fas fa-map-marked-alt me-2"></i>
-                                Indoors
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.bookings') ? 'active' : '' }}"
-                            href="{{ route('admin.bookings') }}" data-section="bookings">
-                                <i class="fas fa-calendar-check me-2"></i>
-                                Bookings
-                                <span class="badge bg-success ms-auto">12</span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.customers') ? 'active' : '' }}"
-                            href="{{ route('admin.customers') }}" data-section="customers">
-                                <i class="fas fa-users me-2"></i>
-                                App Users
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.indoor-admins') ? 'active' : '' }}"
-                            href="{{ route('admin.indoor-admins') }}" data-section="indoor-admins">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Indoor Admins
-                            </a>
-                        </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-section="analytics">
-                                    <i class="fas fa-chart-bar me-2"></i>
-                                    
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="sidebar-section mt-4">
-                        <h6 class="sidebar-heading text-muted text-uppercase">GENERAL</h6>
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-section="settings">
-                                    <i class="fas fa-cog me-2"></i>
-                                    Settings
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-section="help">
-                                    <i class="fas fa-question-circle me-2"></i>
-                                    Help
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Mobile App Promotion -->
-                    <div class="mobile-app-promo mt-4">
-                        <div class="card bg-dark text-white">
-                            <div class="card-body text-center">
-                                <i class="fas fa-mobile-alt fa-2x mb-2"></i>
-                                <h6>Download our Mobile App</h6>
-                                <p class="small">Manage bookings on the go</p>
-                                <button class="btn btn-success btn-sm">Download</button>
-                            </div>
+    <div class="relative flex size-full min-h-screen flex-col bg-slate-50 overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="gap-1 px-1 flex flex-1 justify-center py-2">
+                <!-- Sidebar -->
+                <div id="sidebar"
+                    class="hidden lg:flex flex-col justify-between bg-white p-4 shadow-md rounded-lg sidebar min-h-[500px] w-[260px]">
+                    <div class="flex flex-col gap-4">
+                        <div class="flex justify-center py-2 border-b border-gray-200">
+                            <div class="bg-center bg-no-repeat bg-cover w-[6.5rem] h-[3.5rem]"
+                                style='background-image: url("https://sevena.lk/img/logo.png");'></div>
                         </div>
+                        <div class="flex flex-col gap-1">
+                            <a href="{{ route('admin.dashboard') }}"
+                                class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-home text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Dashboard</p>
+                            </a>
+                            <a href="{{ route('admin.employee-management') }}"
+                                class="nav-item {{ request()->routeIs('admin.employee-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-users text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Employee</p>
+                            </a>
+                            <a href="{{ route('admin.production-management') }}"
+                                class="nav-item {{ request()->routeIs('admin.production-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-industry text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Production</p>
+                            </a>
+                            <a href="{{ route('admin.salary-management') }}"
+                                class="nav-item {{ request()->routeIs('admin.salary-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-money-bill-wave text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Salary</p>
+                            </a>
+                            <a href="{{ route('admin.attendance-management') }}"
+                                class="nav-item {{ request()->routeIs('admin.attendance-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2"
+                                data-module="attendance">
+                                <i class="fas fa-calendar-check text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Attendance</p>
+                            </a>
+                            <a href="{{ route('admin.loan-management') }}"
+                                class="nav-item {{ request()->routeIs('admin.loan-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2"
+                                data-module="loan">
+                                <i class="fas fa-hand-holding-usd text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Loan</p>
+                            </a>
+                            <a href="{{ route('admin.stock-management') }}" class="nav-item {{ request()->routeIs('admin.stock-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-boxes text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Stock</p>
+                            </a>
+                            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-chart-bar text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Reports</p>
+                            </a>
+                            <a href="{{ route('admin.setting-management') }}"
+                                class="nav-item flex items-center gap-3 px-3 py-2">
+                                <i class="fas fa-cog text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Settings</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="py-4 border-t border-gray-200">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left">
+                                <div
+                                    class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition">
+                                    <i class="fas fa-sign-out-alt text-gray-500 w-6 text-center"></i>
+                                    <p class="text-[#0d151c] text-sm font-medium leading-normal">Logout</p>
+                                </div>
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </nav>
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- Header -->
-                <header class="d-flex justify-content-between align-items-center py-3 mb-4">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target=".sidebar">
+                <!-- Main Content -->
+                <div class="layout-content-container flex flex-col max-w-80% flex-1">
+                    <!-- Header -->
+                    <header class="header flex items-center justify-between px-4 lg:px-10 py-4">
+                        <!-- Burger Menu -->
+                        <button id="burger" class="block lg:hidden text-2xl text-blue-700">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <div class="search-box">
-                            <div class="input-group">
-                                <span class="input-group-text bg-transparent border-end-0">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0" placeholder="Search..." style="background: transparent;">
-                                <span class="input-group-text bg-transparent border-start-0">
-                                    <kbd>⌘F</kbd>
-                                </span>
+
+                        <!-- Title -->
+                        <div class="flex items-center gap-2 text-[#0d151c]">
+                            <i class="fas fa-utensils text-blue-700"></i>
+                            <h2 class="text-lg font-bold">Sevena Production Co.</h2>
+                        </div>
+
+                        <!-- Right Actions -->
+                        <div class="flex flex-1 justify-end gap-4">
+                            <label class="flex items-center min-w-[200px] h-10 rounded-xl bg-[#e7edf4]">
+                                <div class="flex items-center justify-center pl-4 text-[#49749c]">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <input placeholder="Search"
+                                    class="flex w-full bg-transparent px-3 text-base border-none focus:outline-none" />
+                            </label>
+                            <button
+                                class="relative flex items-center justify-center w-10 h-10 rounded-full bg-[#e7edf4] text-[#0d151c] hover:bg-[#d1e0f0]">
+                                <i class="fas fa-bell"></i>
+                                <div class="notification-badge">3</div>
+                            </button>
+                            <div class="bg-center bg-no-repeat bg-cover rounded-full size-10"
+                                style='background-image: url("https://lh3.googleusercontent.com/a-/AFdZucpWq8JhKRS4ikNB9Ln1EXz7J--2nLyvXsGrKH8=s96-c");'>
                             </div>
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-secondary me-2">
-                            <i class="fas fa-envelope"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary me-3">
-                            <i class="fas fa-bell"></i>
-                        </button>
-                        <div class="dropdown">
-                            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Profile" class="rounded-circle me-2" width="40" height="40">
-                                <div class="text-start">
-                                    <div class="fw-semibold">John Manager</div>
-                                    <div class="small text-muted">admin@bookingpro.com</div>
-                                </div>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="#">Settings</a></li>
-                                <li><hr class="dropdown-divider"></li>
-<form method="POST" action="{{ route('logout') }}">
-    @csrf
-    <button type="submit" class="dropdown-item text-danger">
-        <i class="fas fa-sign-out-alt me-2"></i> Logout
-    </button>
-</form>
-                            </ul>
-                        </div>
-                    </div>
-                </header>
+                    </header>
 
-            </main>
+                    <!-- Module Content -->
+                    <div class="module-content-container p-2">
+                        {{ $slot ?? '' }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-   <!-- Main Content -->
-            <main class="main-content">
-                {{ $slot ?? '' }}
-            </main>
+    <!-- Burger Toggle Script -->
+    <script>
+        document.getElementById('burger').addEventListener('click', function () {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
 
-      
 
+    </script>
 
-           
 
     @livewireScripts
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Sidebar toggle functionality
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const mainContent = document.getElementById('main-content');
-        
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('show');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            if (window.innerWidth <= 991.98) {
-                const isClickInsideSidebar = sidebar.contains(event.target);
-                const isClickOnToggle = sidebarToggle.contains(event.target);
-                
-                if (!isClickInsideSidebar && !isClickOnToggle) {
-                    sidebar.classList.remove('show');
-                }
-            }
-        });
-
-        // Prevent dropdown from closing when clicking inside forms
-        document.querySelectorAll('.dropdown-menu form').forEach(form => {
-            form.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-
-        // Responsive adjustments
-        function handleResize() {
-            if (window.innerWidth > 991.98) {
-                sidebar.classList.remove('show');
-            }
-        }
-
-        window.addEventListener('resize', handleResize);
-        handleResize();
-    });
-</script>
-
-@stack('scripts')
-
 </body>
+
 </html>

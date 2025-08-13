@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Staff;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Employee;
@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 
-#[Title("Staff Dashboard")]
-#[Layout("components.layouts.staff")]
+#[Title("Admin Loan Management")]
+#[Layout("components.layouts.admin")]
 
 class LoanManagement extends Component
 {
@@ -155,7 +155,7 @@ class LoanManagement extends Component
             $query->select('emp_id', 'fname');
         }])->get();
 
-        return view('livewire.staff.loan-management', [
+        return view('livewire.admin.loan-management', [
             'loans' => $loans,
         ]);
     }

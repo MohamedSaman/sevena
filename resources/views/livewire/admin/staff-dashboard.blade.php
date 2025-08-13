@@ -73,3 +73,52 @@
     </div>
 </div>
 
+{{-- <style>
+    .card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .table-container {
+        overflow-x: auto;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    th, td {
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 0.875rem;
+    }
+    th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+    }
+    .status-badge {
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    .status-in-progress {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    @media (max-width: 640px) {
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            min-width: 600px;
+        }
+    }
+</style> --}}
