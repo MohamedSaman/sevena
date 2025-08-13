@@ -150,7 +150,7 @@
                                 <i class="fas fa-hand-holding-usd text-gray-500 w-6 text-center"></i>
                                 <p class="text-[#0d151c] text-sm font-medium leading-normal">Loan</p>
                             </a>
-                            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2">
+                            <a href="{{ route('staff.stock-management') }}" class="nav-item {{ request()->routeIs('staff.stock-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
                                 <i class="fas fa-boxes text-gray-500 w-6 text-center"></i>
                                 <p class="text-[#0d151c] text-sm font-medium leading-normal">Stock</p>
                             </a>

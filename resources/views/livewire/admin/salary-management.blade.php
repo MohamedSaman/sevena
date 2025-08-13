@@ -203,59 +203,60 @@
     <!-- Payslip Modal -->
     @if($showPayslipModal && $salaryBreakdown)
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg w-full max-w-4xl mx-4 overflow-auto max-h-[90vh]">
+        <div class="bg-white rounded-lg w-70% max-w-4xl mx-4 overflow-auto max-h-[90vh]">
             <div class="p-6" id="payslip-content">
                 <style>
+                    @page {
+                        size: A6;
+                        margin: 100%;
+                    }
+
+                    body {
+                        background: #f0f0f0;
+                        padding: 5px;
+                    }
+
                     .payslip-container {
                         font-family: Arial, sans-serif;
-                        max-width: 800px;
-                        margin: 0 auto;
+                        width: 100%;
+                        max-width: 100%;
                         background: white;
                         color: black;
                         overflow: hidden;
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+                        padding: 1cm;
+                        box-sizing: border-box;
                     }
 
                     .payslip-header {
-                        margin-bottom: 1.5rem;
+                        margin-bottom: 1rem;
+                        text-align: center;
                     }
 
                     .payslip-header h1 {
-                        font-size: 1.5rem;
+                        font-size: 1.2rem;
                         font-weight: bold;
-                    }
-
-                    .payslip-logo {
-                        position: absolute;
-                        top: 1.5rem;
-                        right: 1.5rem;
-                        border-radius: 9999px;
-                        width: 12rem;
-                        height: 3rem;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-size: 1.25rem;
-                        font-weight: bold;
+                        margin-bottom: 0.25rem;
                     }
 
                     .employee-info {
                         display: flex;
                         justify-content: space-between;
-                        margin-bottom: 1rem;
+                        margin-bottom: 0.75rem;
+                        font-size: 0.85rem;
                     }
 
                     .payslip-table {
                         width: 100%;
-                        font-size: 0.875rem;
+                        font-size: 0.75rem;
                         border-collapse: collapse;
                         margin-bottom: 1rem;
                     }
 
                     .payslip-table th,
                     .payslip-table td {
-                        padding: 0.5rem;
-                        border: 1px solid #E5E7EB;
+                        padding: 0.4rem;
+                        border: 1px solid #ccc;
                         text-align: left;
                     }
 
@@ -264,7 +265,7 @@
                         font-weight: 600;
                     }
 
-                    .payslip-table td.text-right {
+                    .text-right {
                         text-align: right;
                     }
 
@@ -277,52 +278,45 @@
                     }
 
                     .text-lg {
-                        font-size: 1.125rem;
+                        font-size: 1rem;
                     }
 
-                    .no-print {
-                        display: none;
+                    .text-sm {
+                        font-size: 0.7rem;
+                    }
+
+                    .text-gray-500 {
+                        color: #6B7280;
                     }
 
                     @media print {
-                        .no-print {
-                            display: none !important;
-                        }
-
-                        body,
-                        html {
-                            height: auto;
-                            overflow: visible;
+                        body {
+                            background: none;
+                            padding: 0;
                         }
 
                         .payslip-container {
-                            margin: 0;
-                            padding: 0;
                             box-shadow: none;
+                            margin: 0;
+                            width: 100%;
+                            padding: 1cm;
+                        }
+
+                        .no-print {
+                            display: none !important;
                         }
                     }
                 </style>
 
                 <div class="payslip-container">
                     <div class="relative">
-                        <!-- Logo -->
-                        <div class="payslip-logo">
-
-                            <img src="http://127.0.0.1:8000/images/site_logo.png" alt="" srcset="">
-                        </div>
-
-                        <!-- Header -->
                         <div class="payslip-header">
-                            <h1 class="text-2xl font-bold">Sevena Industries (Pvt.) Ltd.</h1>
-                            <p>Kammalpitiya, Pasyala, Sri Lanka.</p>
-                            <p>Tel:(+94) 332 285 439, | Email: info@sevena.lk</p>
-                            <p>Company Registration: PV68666</p>
+                            <h1>Salary Payslip</h1>
                         </div>
 
-                        <!-- Employee Info -->
                         <div class="employee-info">
                             <div>
-                                <p class="text-lg font-semibold">{{ $employeeDetails->fname ?? 'Unknown' }}</p>
+                                <p><strong>{{ $employeeDetails->fname ?? 'Unknown' }}</strong></p>
                                 <p>{{ $employeeDetails->designation ?? 'Employee' }}</p>
                             </div>
                             <div class="text-right">
@@ -343,21 +337,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Earnings -->
                                 <tr>
                                     <td>Earnings</td>
-                                    <td>Basic Salary (<span>{{ $salaryBreakdown['total_hours'] }} hours) </span>
-                                    </td>
+                                    <td>Basic Salary ({{ $salaryBreakdown['total_hours'] }} hours)</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['basic_salary'], 2) }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
-                                    <td>Overtime @if($salaryBreakdown['overtime_hours'] > 0)
-                                        
-                                            {{ $salaryBreakdown['overtime_hours'] }} hours @ 1.5x rate
-                                       
-                                        @endif
-                                    </td>
+                                    <td>Overtime @if($salaryBreakdown['overtime_hours'] > 0) {{
+                                        $salaryBreakdown['overtime_hours'] }} hours @ 1.5x rate @endif</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['overtime'], 2) }}</td>
                                 </tr>
                                 <tr>
@@ -371,23 +359,19 @@
                                     <td class="text-right">{{ number_format($salaryBreakdown['production_bonus'], 2) }}
                                     </td>
                                 </tr>
-                                <tr class="bg-gray-50 font-semibold">
+                                <tr class="font-bold">
                                     <td></td>
                                     <td>Total Earnings</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['gross_salary'], 2) }}</td>
                                 </tr>
 
-                                <!-- Deductions -->
                                 <tr>
                                     <td>Deductions</td>
                                     <td>EPF (8%)</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['epf'], 2) }}</td>
                                 </tr>
-                                <tr>
-                                    <td></td>
-                                    <td>ETF (3%)</td>
-                                    <td class="text-right">{{ number_format($salaryBreakdown['etf'], 2) }}</td>
-                                </tr>
+
+                                
                                 <tr>
                                     <td></td>
                                     <td>Loan Deductions</td>
@@ -400,16 +384,21 @@
                                     <td class="text-right">{{ number_format($salaryBreakdown['other_deductions'], 2) }}
                                     </td>
                                 </tr>
-                                <tr class="bg-gray-50 font-semibold">
+                                <tr class="font-bold">
                                     <td></td>
                                     <td>Total Deductions</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['epf'] +
-                                        $salaryBreakdown['etf'] + $salaryBreakdown['loan_deductions'] +
+                                        $salaryBreakdown['loan_deductions'] +
                                         $salaryBreakdown['other_deductions'], 2) }}</td>
                                 </tr>
 
-                                <!-- Net Salary -->
-                                <tr class="font-bold text-lg bg-green-100">
+                                <tr>
+                                    <td>Loan</td>
+                                    <td>Remming Balance</td>
+                                    <td class="text-right">{{ number_format($loanbalance ?? 0, 2) }}</td>
+                                </tr>
+
+                                <tr class="font-bold bg-green-100 text-lg">
                                     <td></td>
                                     <td>Net Salary</td>
                                     <td class="text-right">{{ number_format($salaryBreakdown['net_salary'], 2) }}</td>
@@ -417,7 +406,6 @@
                             </tbody>
                         </table>
 
-                        <!-- Employer Contributions -->
                         <h3 class="font-semibold mb-1">Employer's Contributions</h3>
                         <table class="payslip-table">
                             <tbody>
@@ -434,15 +422,14 @@
                             </tbody>
                         </table>
 
-                        <!-- Footer -->
-                        <div class="text-sm text-gray-500 mt-4">
+                        <div class="text-sm text-gray-500 mt-3">
                             <p>Printed Date: {{ now()->format('Y-m-d') }} | Time: {{ now()->format('H:i') }}</p>
-
                         </div>
                     </div>
                 </div>
+
                 <button wire:click="$set('showPayslipModal', false)"
-                    class="px-6 py-2 bg-gray-500 text-white rounded my-8 ml-32 mr-96 ">Close</button>
+                    class="px-6 py-2 bg-gray-500 text-white rounded my-6 ml-32 mr-10 ">Close</button>
                 <button onclick="printPayslip()" class="px-4 py-2 bg-green-600 text-white rounded ">Print
                     Payslip</button>
 
@@ -467,12 +454,14 @@
                 <head>
                     <title>Payslip - {{ $employeeDetails->fname ?? 'Employee' }}</title>
                     <style>
+                        @page {
+                            size: A6;
+                            margin: 1cm;
+                        }
+
                         body {
-                            font-family: Arial, sans-serif;
-                            margin: 0;
-                            padding: 20px;
-                            background: white;
-                            color: black;
+                            background: #f0f0f0;
+                            padding: 10px;
                         }
                         .payslip-container {
                             max-width: 800px;
@@ -555,5 +544,141 @@
             
             printWindow.document.close();
         }
+ 
+                
+        document.addEventListener('livewire:init', function () {
+        Livewire.on('print-payslip', function (salaryBreakdown) {
+            console.log('Received salary breakdown:', salaryBreakdown);
+            
+            // Create a helper function to safely access and format values
+            const getValue = (key, defaultValue = 0) => {
+                if (!salaryBreakdown || !salaryBreakdown.hasOwnProperty(key)) {
+                    return defaultValue;
+                }
+                const value = salaryBreakdown[key];
+                
+                // Handle numeric values that might be strings
+                if (typeof value === 'string' && value.trim() !== '') {
+                    return parseFloat(value) || defaultValue;
+                }
+                
+                return value || defaultValue;
+            };
+
+            try {
+                // Use the helper function to get all values
+                const employee_name = getValue('employee_name', 'Unknown');
+                const month_name = getValue('month_name', 'N/A');
+                const year = getValue('year', 'N/A');
+                const basic_salary = getValue('basic_salary');
+                const production_bonus = getValue('production_bonus');
+                const overtime = getValue('overtime');
+                const allowances = getValue('allowances');
+                const gross_salary = getValue('gross_salary');
+                const epf = getValue('epf');
+                const etf = getValue('etf');
+                const loan_deductions = getValue('loan_deductions');
+                const other_deductions = getValue('other_deductions');
+                const net_salary = getValue('net_salary');
+
+                const printContent = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; width: 100%; max-width: 600px; margin: 0 auto;">
+                        <h1 style="text-align: center; margin-bottom: 20px;">Payslip</h1>
+                        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 5px;">
+                            <p><strong>Employee Name:</strong> ${employee_name}</p>
+                            <p><strong>Period:</strong> ${month_name} ${year}</p>
+                            
+                            <h3 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Earnings</h3>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Basic Salary:</span>
+                                <span>LKR ${basic_salary.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Production Bonus:</span>
+                                <span>LKR ${production_bonus.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Overtime:</span>
+                                <span>LKR ${overtime.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Allowances:</span>
+                                <span>LKR ${allowances.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+                                <span>Gross Salary:</span>
+                                <span>LKR ${gross_salary.toFixed(2)}</span>
+                            </div>
+                            
+                            <h3 style="margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Deductions</h3>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>EPF (8%):</span>
+                                <span>LKR ${epf.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>ETF (3%):</span>
+                                <span>LKR ${etf.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Loan Deductions:</span>
+                                <span>LKR ${loan_deductions.toFixed(2)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Other Deductions:</span>
+                                <span>LKR ${other_deductions.toFixed(2)}</span>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                                <span>Net Salary:</span>
+                                <span>LKR ${net_salary.toFixed(2)}</span>
+                            </div>
+                            
+                            <div style="margin-top: 30px; text-align: center; font-style: italic;">
+                                Generated on ${new Date().toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const printWindow = window.open('', '_blank', 'height=700,width=800');
+                printWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Payslip - ${employee_name}</title>
+                            <style>
+                                body { 
+                                    font-family: Arial, sans-serif; 
+                                    margin: 0; 
+                                    padding: 20px; 
+                                    color: #333;
+                                    background-color: white;
+                                }
+                                h1, h2, h3 { 
+                                    color: #2c3e50; 
+                                }
+                                @media print {
+                                    body { 
+                                        -webkit-print-color-adjust: exact; 
+                                        print-color-adjust: exact;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body>${printContent}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                
+                // Wait for content to load before printing
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+            } catch (error) {
+                console.error('Error printing payslip:', error);
+                alert('Failed to print payslip. Please check console for details.');
+            }
+        });
+    });
     </script>
 </div>

@@ -12,9 +12,14 @@ use App\Livewire\Staff\ProductionManagement;
 use App\Livewire\Staff\SettingManagement;
 use App\Livewire\Staff\LoanManagement;
 use App\Livewire\Staff\AttendanceManagement;
-
-
-
+use App\Livewire\Staff\StockManagemnt;
+use App\Livewire\Admin\EmployeeManagement as AdminEmployeeManagement;
+use App\Livewire\Admin\SalaryManagement as AdminSalaryManagement;
+use App\Livewire\Admin\ProductionManagement as AdminProductionManagement;
+use App\Livewire\Admin\SettingManagement as AdminSettingManagement;
+use App\Livewire\Admin\LoanManagement as AdminLoanManagement;
+use App\Livewire\Admin\AttendanceManagement as AdminAttendanceManagement;
+use App\Livewire\Admin\StockManagemnt as AdminStockManagement;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +49,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // !! Admin routes
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+        Route::get('/employee-management', AdminEmployeeManagement::class)->name('employee-management');
+        Route::get('/salary-management', AdminSalaryManagement::class)->name('salary-management');
+        Route::get('/production-management', AdminProductionManagement::class)->name('production-management');
+        Route::get('/setting-management', AdminSettingManagement::class)->name('setting-management');
+        Route::get('/staff/loan-management', AdminLoanManagement::class)->name('loan-management');
+        Route::get('/attendance-management', AdminAttendanceManagement::class)->name('attendance-management');
+        Route::get('/stock-management', AdminStockManagement::class)->name('stock-management');
+
 
 
     });
@@ -58,6 +71,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/setting-management', SettingManagement::class)->name('setting-management');
         Route::get('/staff/loan-management', LoanManagement::class)->name('loan-management');
         Route::get('/attendance-management', AttendanceManagement::class)->name('attendance-management');
+        Route::get('/stock-management', StockManagemnt::class)->name('stock-management');
 
         
     });

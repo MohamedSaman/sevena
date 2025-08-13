@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Staff;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\Attributes\Title;
@@ -13,8 +13,8 @@ use App\Models\Loans;
 use App\Models\Attendance;
 use Carbon\Carbon;
 
-#[Title("Staff Dashboard")]
-#[Layout("components.layouts.staff")]
+#[Title("Admin Dashboard")]
+#[Layout("components.layouts.admin")]
 class SalaryManagement extends Component
 {
     public $activeTab = 'monthly';
@@ -31,6 +31,8 @@ class SalaryManagement extends Component
     public $employeeDetails = null;
     public $currentSalaryRecord = null;
     public  $totalWorkedHours = 0;
+    public $loanbalance = 0;
+
 
     public function mount()
 
@@ -107,28 +109,29 @@ class SalaryManagement extends Component
 
         if (!$salary) {
             $productionBonus = ProductionSalaries::where('employee_id', $employeeId)
-                ->where('category', $this->activeTab === 'monthly' ? 'magi' : 'papadam')
+                ->where('category', $this->activeTab === 'daily' ? 'magi' : 'papadam')
                 ->whereMonth('created_at', $this->form['month'])
                 ->whereYear('created_at', $this->form['year'])
                 ->sum('total_salary');
+                // dd($productionBonus);
 
             $allowances = $employeeSalaryType === 'monthly' ? 5000 : 200;
             $grossSalary = $basicSalaryPay + $productionBonus + $overtime + $allowances;
             $epf = ($basicSalaryPay + $allowances) * 0.08;
-            $etf = $grossSalary * 0.03;
+            // $etf = $grossSalary * 0.03;
 
             // Calculate loan deductions - only deduct if it won't make net salary negative
             $loanDeductions = 0;
             if ($loanDetails && $loanDetails->remaining_balance > 0) {
-                $potentialNetSalary = $grossSalary - $epf - $etf - $loanDetails->monthly_payment;
+                $potentialNetSalary = $grossSalary - $epf  - $loanDetails->monthly_payment;
                 if ($potentialNetSalary >= 0) {
                     $loanDeductions = $loanDetails->monthly_payment;
                 }
             }
 
             $otherDeductions = 0;
-            $netSalary = $grossSalary - $epf - $etf - $loanDeductions - $otherDeductions;
-
+            $netSalary = $grossSalary - ($epf  + $loanDeductions + $otherDeductions);
+            // dd($net?Salary);
             $this->salaryBreakdown = [
                 'basic_salary' => $basicSalaryPay,
                 'production_bonus' => $productionBonus,
@@ -136,7 +139,7 @@ class SalaryManagement extends Component
                 'allowances' => $allowances,
                 'gross_salary' => $grossSalary,
                 'epf' => $epf,
-                'etf' => $etf,
+                'etf' => $etf ?? 0,
                 'loan_deductions' => $loanDeductions,
                 'other_deductions' => $otherDeductions,
                 'net_salary' => $netSalary,
@@ -146,6 +149,7 @@ class SalaryManagement extends Component
                 'total_hours' => $this->totalWorkedHours,
                 'overtime_hours' => $overTimeHours ?? 0,
             ];
+            // dd($this->salaryBreakdown);
 
             $salary = Salaries::create([
                 'employee_id' => $employeeId,
@@ -179,7 +183,7 @@ class SalaryManagement extends Component
                 'allowances' => $salary->allowance,
                 'gross_salary' => $salary->basic_salary + $salary->bonus + $salary->overtime + $salary->allowance,
                 'epf' => ($salary->basic_salary + $salary->allowance) * 0.08,
-                'etf' => ($salary->basic_salary + $salary->bonus + $salary->allowance) * 0.03,
+                'etf' => ($salary->basic_salary + $salary->allowance) * 0.03,
                 'loan_deductions' => $loanDeductions,
                 'other_deductions' => 0,
                 'net_salary' => ($salary->basic_salary + $salary->bonus + $salary->overtime + $salary->allowance) -
@@ -254,7 +258,6 @@ class SalaryManagement extends Component
             session()->flash('message', 'Salary marked as paid and loan updated.');
         }
     }
-
     public function showPayslipForRecord($salaryId)
     {
         $salary = Salaries::find($salaryId);
@@ -262,12 +265,15 @@ class SalaryManagement extends Component
             $employee = Employee::find($salary->employee_id);
             $this->employeeDetails = $employee;
 
+            // dd($this->loanbalance);
+
             $salaryMonth = Carbon::parse($salary->salary_month);
 
             $gross_salary = $salary->basic_salary + $salary->bonus + $salary->overtime + $salary->allowance;
             $epf = ($salary->basic_salary + $salary->allowance) * 0.08;
             $etf = $gross_salary * 0.03;
-
+            $this->loanbalance = Loans::where('employee_id', $salary->employee_id)
+                ->value('remaining_balance');
             $this->salaryBreakdown = [
                 'basic_salary' => $salary->basic_salary,
                 'production_bonus' => $salary->bonus,
@@ -284,6 +290,7 @@ class SalaryManagement extends Component
                 'year' => $salaryMonth->format('Y'),
                 'total_hours' => $salary->total_hours,
                 'overtime_hours' => $salary->overtime_hours,
+
             ];
 
             $this->currentSalaryRecord = $salary;
@@ -299,7 +306,7 @@ class SalaryManagement extends Component
             ->where('salary_type', $this->activeTab)
             ->get();
 
-        return view('livewire.staff.salary-management', [
+        return view('livewire.admin.salary-management', [
             'salaries' => $salaries,
         ]);
     }

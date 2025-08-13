@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Staff;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
-#[Title("Staff Employee Management")]
-#[Layout("components.layouts.staff")]
+#[Title("Admin Empolyee Management")]
+#[Layout("components.layouts.admin")]
 class EmployeeManagement extends Component
 {
     use WithFileUploads;
@@ -25,6 +25,8 @@ class EmployeeManagement extends Component
     public $showViewModal = false;
     public $employeeId;
     public $existingPhoto;
+    public $search = '';
+
 
     protected $rules = [
         'empCode' => 'required|string|unique:employees,empCode',
@@ -209,11 +211,25 @@ class EmployeeManagement extends Component
         $this->dispatch('closeModal');
     }
 
-    public function render()
-    {
-        $employees = Employee::all();
-        return view('livewire.staff.employee-management', [
-            'employees' => $employees
-        ]);
+public function render()
+{
+    $employeesQuery = Employee::query();
+
+    if ($this->search) {
+        $searchTerm = '%' . $this->search . '%';
+        $employeesQuery->where(function ($query) use ($searchTerm) {
+            $query->where('empCode', 'like', $searchTerm)
+                  ->orWhere('fname', 'like', $searchTerm)
+                  ->orWhere('lname', 'like', $searchTerm)
+                  ->orWhere('designation', 'like', $searchTerm)
+                  ->orWhere('department', 'like', $searchTerm);
+        });
     }
+
+    $employees = $employeesQuery->get();
+
+    return view('livewire.admin.employee-management', [
+        'employees' => $employees
+    ]);
+}
 }
