@@ -186,6 +186,15 @@
                             required>
                         @error('basic_salary') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-gray-700">Fixed Allowance</label>
+                        <input type="number" step="0.01" wire:model.defer="allowance"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            required>
+                        @error('basic_salary') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Joining Date</label>
                         <input type="date" wire:model.defer="joining_date"
@@ -376,6 +385,9 @@
                                         @error('salary_type') <span class="text-xs text-red-500">{{ $message }}</span>
                                         @enderror
                                     </div>
+                                    <!-- Allowance -->
+
+
                                     <div>
                                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Basic
                                             Salary</label>
@@ -383,6 +395,15 @@
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                             required>
                                         @error('basic_salary') <span class="text-xs text-red-500">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block mb-1">Allowance</label>
+                                        <input type="number" wire:model="allowance"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                            required>
+                                        @error('allowance')
+                                        <span class="text-red-500 text-sm">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div>
@@ -500,8 +521,12 @@
                                     $department }}</p>
                                 <p class="text-sm text-gray-600"><span class="font-medium">Salary Type:</span> {{
                                     $salary_type ? ucfirst($salary_type) : 'N/A' }}</p>
+                                
                                 <p class="text-sm text-gray-600"><span class="font-medium">Basic Salary:</span> {{
                                     $basic_salary ? number_format($basic_salary, 2) : 'N/A' }}</p>
+
+                                <p class="text-sm text-gray-600"><span class="font-medium">Allowance:</span> {{
+                                    $allowance ? number_format($allowance, 2) : 'N/A' }}</p>
                                 <p class="text-sm text-gray-600"><span class="font-medium">Fingerprint ID:</span> {{
                                     $fingerprint_id ?: 'N/A' }}</p>
                             </div>

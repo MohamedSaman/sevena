@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,10 +15,10 @@ class Employee extends Model
     protected $fillable = [
         'empCode', 'fingerprint_id', 'photo', 'fname', 'lname', 'gender', 'dob',
         'nic', 'email', 'phone', 'address', 'department', 'designation',
-        'salary_type', 'basic_salary', 'joining_date', 'status',
+        'salary_type', 'basic_salary', 'allowance', 'joining_date', 'status',
     ];
 
-    // Relationships
+    // Relationships (unchanged)
     public function productionSalaries()
     {
         return $this->hasMany(ProductionSalaries::class, 'employee_id', 'emp_id');
@@ -43,5 +42,4 @@ class Employee extends Model
     {
         return $this->hasMany(Attendance::class, 'employee_id', 'emp_id');
     }
-
 }

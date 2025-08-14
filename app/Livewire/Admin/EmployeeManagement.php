@@ -26,6 +26,8 @@ class EmployeeManagement extends Component
     public $employeeId;
     public $existingPhoto;
     public $search = '';
+    public $allowance;
+
 
 
     protected $rules = [
@@ -42,6 +44,7 @@ class EmployeeManagement extends Component
         'designation' => 'required|string|max:255',
         'salary_type' => 'required|in:daily,monthly',
         'basic_salary' => 'required|numeric|min:0',
+        'allowance' => 'nullable|numeric|min:0',
         'joining_date' => 'required|date',
         'status' => 'required|in:active,inactive',
         'fingerprint_id' => 'nullable|string|max:255',
@@ -72,6 +75,7 @@ class EmployeeManagement extends Component
             'department' => $this->department,
             'designation' => $this->designation,
             'salary_type' => $this->salary_type,
+            'allowance' => $this->allowance ?? 0, // Default to 0 if not provided
             'basic_salary' => $this->basic_salary,
             'joining_date' => $this->joining_date,
             'status' => $this->status,
@@ -102,6 +106,7 @@ class EmployeeManagement extends Component
         $this->designation = $employee->designation;
         $this->salary_type = $employee->salary_type;
         $this->basic_salary = $employee->basic_salary;
+        $this->allowance = $employee->allowance;
         $this->joining_date = $employee->joining_date ? Carbon::parse($employee->joining_date)->format('Y-m-d') : null;
         $this->status = $employee->status;
         $this->showEditModal = true;
@@ -129,6 +134,7 @@ class EmployeeManagement extends Component
         $this->designation = $employee->designation;
         $this->salary_type = $employee->salary_type;
         $this->basic_salary = $employee->basic_salary;
+        $this->allowance = $employee->allowance;
         $this->joining_date = $employee->joining_date ? Carbon::parse($employee->joining_date)->format('Y-m-d') : 'N/A';
         $this->status = $employee->status;
         $this->showViewModal = true;
@@ -170,6 +176,7 @@ class EmployeeManagement extends Component
             'designation' => $this->designation,
             'salary_type' => $this->salary_type,
             'basic_salary' => $this->basic_salary,
+            'allowance' => $this->allowance ?? 0, // Default to 0 if not provided
             'joining_date' => $this->joining_date,
             'status' => $this->status,
         ]);
