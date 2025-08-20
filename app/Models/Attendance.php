@@ -21,6 +21,8 @@ class Attendance extends Model
         'check_out',
         'time_worked',
         'status',
+        'late_hours', 
+        'over_time', // Added for over time tracking
     ];
 
     protected $casts = [

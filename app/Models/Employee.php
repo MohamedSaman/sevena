@@ -15,7 +15,7 @@ class Employee extends Model
     protected $fillable = [
         'empCode', 'fingerprint_id', 'photo', 'fname', 'lname', 'gender', 'dob',
         'nic', 'email', 'phone', 'address', 'department', 'designation',
-        'salary_type', 'basic_salary', 'allowance', 'joining_date', 'status',
+        'salary_type', 'basic_salary', 'allowance', 'joining_date', 'status','additional_salary',
     ];
 
     // Relationships (unchanged)

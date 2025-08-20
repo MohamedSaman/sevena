@@ -56,6 +56,8 @@ class AttendanceManagement extends Component
                     'fingerprint_id' => $employee->fingerprint_id,
                     'date' => $date,
                     'status' => 'absent',
+                    'late_hours' => 8,
+                    'over_time' => 0,
                 ]);
             }
         }
@@ -140,6 +142,20 @@ class AttendanceManagement extends Component
                             }
                         }
 
+                        // Calculate late_hours and over_time
+                        $late_hours = 0;
+                        $over_time = 0;
+                        
+                        if ($status == 'absent') {
+                            $late_hours = 8;
+                        } elseif ($time_worked !== null) {
+                            if ($time_worked < 8) {
+                                $late_hours = 8 - $time_worked;
+                            } elseif ($time_worked >= 8.4) {
+                                $over_time = $time_worked - 8;
+                            }
+                        }
+
                         Attendance::updateOrCreate(
                             [
                                 'employee_id' => $employee->emp_id,
@@ -153,6 +169,8 @@ class AttendanceManagement extends Component
                                 'check_out' => $check_out,
                                 'time_worked' => $time_worked,
                                 'status' => $status,
+                                'late_hours' => $late_hours,
+                                'over_time' => $over_time,
                             ]
                         );
 
@@ -187,14 +205,52 @@ class AttendanceManagement extends Component
         $status = $this->statusUpdates[$attendanceId ?? 'new_' . $employeeId] ?? null;
         if ($status && in_array($status, ['present', 'late', 'early', 'absent', 'leave'])) {
             if ($attendanceId) {
-                Attendance::where('attendance_id', $attendanceId)->update(['status' => $status]);
+                $attendance = Attendance::find($attendanceId);
+                if (!$attendance) {
+                    session()->flash('error', 'Attendance record not found.');
+                    return;
+                }
+
+                $updateData = ['status' => $status];
+
+                if (in_array($status, ['absent','leave'])) {
+                    $updateData['late_hours'] = 8;
+                    $updateData['over_time'] = 0;
+                } else {
+                    if ($attendance->time_worked !== null) {
+                        $time_worked = $attendance->time_worked;
+                        if ($time_worked < 8) {
+                            $updateData['late_hours'] = 8 - $time_worked;
+                            $updateData['over_time'] = 0;
+                        } elseif ($time_worked >= 8.4) {
+                            $updateData['over_time'] = $time_worked - 8;
+                            $updateData['late_hours'] = 0;
+                        } else {
+                            $updateData['late_hours'] = 0;
+                            $updateData['over_time'] = 0;
+                        }
+                    } else {
+                        $updateData['late_hours'] = 0;
+                        $updateData['over_time'] = 0;
+                    }
+                }
+
+                $attendance->update($updateData);
             } else {
                 $date = $this->getSelectedDate();
+                $late_hours = 0;
+                $over_time = 0;
+                if (in_array($status, ['absent','leave'])) {
+                    $late_hours = 8;
+                }
+
                 Attendance::create([
                     'employee_id' => $employeeId,
                     'fingerprint_id' => Employee::find($employeeId)->fingerprint_id,
                     'date' => $date,
                     'status' => $status,
+                    'late_hours' => $late_hours,
+                    'over_time' => $over_time,
                 ]);
             }
             session()->flash('message', 'Status updated successfully.');
@@ -223,13 +279,11 @@ class AttendanceManagement extends Component
         }
     }
 
-    // Change the render method
     public function render()
     {
         try {
             $dateFilter = $this->form['date_filter'] ?? 'today';
 
-            // Determine date range based on filter
             $timezone = config('app.timezone', 'UTC');
             switch ($dateFilter) {
                 case 'today':
@@ -264,7 +318,6 @@ class AttendanceManagement extends Component
 
             $isMultiDay = $startDate->ne($endDate);
 
-            // Only ensure absent records for single-day filters
             if (!$isMultiDay) {
                 $this->ensureAbsentRecords($startDate);
             }
@@ -280,7 +333,6 @@ class AttendanceManagement extends Component
                 });
             }
 
-            // Load attendances based on date range
             $query->with(['attendances' => function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('date', [$startDate, $endDate])
                   ->orderBy('date', 'desc');
