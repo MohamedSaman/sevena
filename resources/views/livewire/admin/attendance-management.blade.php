@@ -32,13 +32,11 @@
                         <option value="this_month">This Month</option>
                         <option value="last_month">Last Month</option>
                     </select>
-                    <!-- Replace the search input with this -->
                     <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search by name or ID..."
                         class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-full">
                 </div>
             </div>
         </div>
-
 
         @if (session('message'))
         <div class="p-4 bg-green-100 text-green-700 rounded-lg mx-4 mb-4">
@@ -61,6 +59,8 @@
                         <th class="px-4 py-3">Break</th>
                         <th class="px-4 py-3">Check Out</th>
                         <th class="px-4 py-3">Time Worked</th>
+                        <th class="px-4 py-3">Late Hours</th>
+                        <th class="px-4 py-3">Overtime</th>
                         <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
@@ -103,6 +103,12 @@
                         </td>
                         <td class="px-4 py-3 text-gray-500">
                             {{ $attendance->time_worked ? number_format($attendance->time_worked, 1) . ' hrs' : '--' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500">
+                            {{ $attendance->late_hours ? number_format($attendance->late_hours, 1) . ' hrs' : '--' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500">
+                            {{ $attendance->over_time ? number_format($attendance->over_time, 1) . ' hrs' : '--' }}
                         </td>
                         <td class="px-4 py-3">
                             @php
@@ -153,7 +159,7 @@
                         <td class="px-4 py-3 font-medium text-gray-900">
                             {{ $employee->fname . ' ' . $employee->lname }}
                         </td>
-                        <td colspan="5" class="px-4 py-3 text-center text-gray-500">
+                        <td colspan="7" class="px-4 py-3 text-center text-gray-500">
                             No attendance records for {{ str_replace('_', ' ', $form['date_filter']) }}
                         </td>
                     </tr>
@@ -196,6 +202,12 @@
                             {{ $attendance && $attendance->time_worked ? number_format($attendance->time_worked, 1) . '
                             hrs' : '--' }}
                         </td>
+                        <td class="px-4 py-3 text-gray-500">
+                            {{ $attendance && $attendance->late_hours ? number_format($attendance->late_hours, 1) . ' hrs' : '--' }}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500">
+                            {{ $attendance && $attendance->over_time ? number_format($attendance->over_time, 1) . ' hrs' : '--' }}
+                        </td>
                         <td class="px-4 py-3">
                             @php
                             $status = $attendance->status ?? 'absent';
@@ -233,7 +245,7 @@
                     @endif
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-3 text-center text-gray-500">No employees found.</td>
+                        <td colspan="9" class="px-4 py-3 text-center text-gray-500">No employees found.</td>
                     </tr>
                     @endforelse
                 </tbody>

@@ -17,7 +17,7 @@ use Carbon\Carbon;
 #[Layout("components.layouts.admin")]
 class SalaryManagement extends Component
 {
-    public $activeTab = 'monthly';
+        public $activeTab = 'monthly';
     public $employees;
     public $form = [
         'employee_id' => '',
@@ -44,7 +44,7 @@ class SalaryManagement extends Component
             'basic_salary',
             'designation',
             'nic',
-            'allowance' // NEW: fetch allowance from employee table
+            'allowance'
         )->get();
     }
 
@@ -55,139 +55,194 @@ class SalaryManagement extends Component
         $this->form['employee_id'] = '';
     }
 
-public function calculateSalary()
-{ $this->validate([
-        'form.employee_id' => 'required|exists:employees,emp_id',
-        'form.month' => 'required|integer|between:1,12',
-        'form.year' => 'required|integer|min:2000|max:' . date('Y'),
-    ]);
+    public function calculateSalary()
+    {
+        $this->validate([
+            'form.employee_id' => 'required|exists:employees,emp_id',
+            'form.month' => 'required|integer|between:1,12',
+            'form.year' => 'required|integer|min:2000|max:' . date('Y'),
+        ]);
 
-    $employeeId = $this->form['employee_id'];
-    $salaryMonth = sprintf('%s-%02d', $this->form['year'], $this->form['month']);
-    $employee = $this->employees->firstWhere('emp_id', $employeeId);
-    $this->employeeDetails = $employee;
+        $employeeId = $this->form['employee_id'];
+        $salaryMonth = sprintf('%04d-%02d', $this->form['year'], $this->form['month']);
+        $employee = $this->employees->firstWhere('emp_id', $employeeId);
+        $this->employeeDetails = $employee;
 
-    $employeeSalaryType = $employee->salary_type;
+        $employeeSalaryType = $employee->salary_type;
 
-    // DAILY workers salary calculation from production_salaries table
-    if ($employeeSalaryType === 'daily') {
-        $totalProductionSalary = ProductionSalaries::where('employee_id', $employeeId)
-            ->whereMonth('created_at', $this->form['month'])
-            ->whereYear('created_at', $this->form['year'])
-            ->sum('total_salary');
-        // dd($totalProductionSalary);
-        $allowances = ProductionSalaries::where('employee_id', $employeeId)
-            ->whereMonth('created_at', $this->form['month'])
-            ->whereYear('created_at', $this->form['year'])
-            ->sum('allowance');
+        // DAILY workers salary calculation
+        if ($employeeSalaryType === 'daily') {
+            $totalProductionSalary = ProductionSalaries::where('employee_id', $employeeId)
+                ->whereMonth('created_at', $this->form['month'])
+                ->whereYear('created_at', $this->form['year'])
+                ->sum('total_salary');
 
-        $bonus = ProductionSalaries::where('employee_id', $employeeId)
-            ->whereMonth('created_at', $this->form['month'])
-            ->whereYear('created_at', $this->form['year'])
-            ->sum('bonus');
+            $allowances = ProductionSalaries::where('employee_id', $employeeId)
+                ->whereMonth('created_at', $this->form['month'])
+                ->whereYear('created_at', $this->form['year'])
+                ->sum('allowance');
 
-        $additionalSalary = ProductionSalaries::where('employee_id', $employeeId)
-            ->whereMonth('created_at', $this->form['month'])
-            ->whereYear('created_at', $this->form['year'])
-            ->sum('additional_salary');
+            $bonus = ProductionSalaries::where('employee_id', $employeeId)
+                ->whereMonth('created_at', $this->form['month'])
+                ->whereYear('created_at', $this->form['year'])
+                ->sum('bonus');
 
-        $epf = 0; // No EPF for daily workers
-        $etf = 0; // No ETF for daily workers
-        
-        $grossSalary = $totalProductionSalary + $allowances + $bonus + $additionalSalary;
+            $additionalSalary = ProductionSalaries::where('employee_id', $employeeId)
+                ->whereMonth('created_at', $this->form['month'])
+                ->whereYear('created_at', $this->form['year'])
+                ->sum('additional_salary');
 
-        $this->salaryBreakdown = [
-            'basic_salary' => $totalProductionSalary,
-            'production_bonus' => $bonus,
-            'additional_salary' => $additionalSalary,
-            'allowances' => $allowances,
-            'gross_salary' => $grossSalary,
-            'epf' => $epf,
-            'etf' => $etf,
-            'loan_deductions' => 0,
-            'other_deductions' => 0,
-            'net_salary' => $grossSalary,
-            'employee_name' => $employee->fname . ' ' . $employee->lname,
-            'month_name' => Carbon::create()->month($this->form['month'])->format('F'),
-            'year' => $this->form['year'],
-            'total_hours' => 0,
-            'overtime_hours' => 0,
-        ];
+            $epf = 0; // No EPF for daily workers
+            $etf = 0; // No ETF for daily workers
 
-        $this->currentSalaryRecord = Salaries::updateOrCreate(
-            [
-                'employee_id' => $employeeId,
-                'salary_month' => $salaryMonth,
-                'salary_type' => 'daily',
-            ],
-            [
+            $grossSalary = $totalProductionSalary + $allowances + $bonus + $additionalSalary;
+
+            $this->salaryBreakdown = [
                 'basic_salary' => $totalProductionSalary,
-                'bonus' => $bonus,
-                'allowance' => $allowances,
+                'production_bonus' => $bonus,
                 'additional_salary' => $additionalSalary,
-                'deductions' => 0,
+                'allowances' => $allowances,
+                'gross_salary' => $grossSalary,
+                'epf' => $epf,
+                'etf' => $etf,
+                'loan_deductions' => 0,
+                'other_deductions' => 0,
                 'net_salary' => $grossSalary,
-                'payment_status' => 'unpaid',
+                'employee_name' => $employee->fname . ' ' . $employee->lname,
+                'month_name' => Carbon::create()->month($this->form['month'])->format('F'),
+                'year' => $this->form['year'],
                 'total_hours' => 0,
                 'overtime_hours' => 0,
-            ]
-        );
+                'overtime' => 0,
+            ];
 
-        session()->flash('message', 'Daily worker salary calculated successfully.');
-        return;
+            $this->currentSalaryRecord = Salaries::updateOrCreate(
+                [
+                    'employee_id' => $employeeId,
+                    'salary_month' => $salaryMonth,
+                    'salary_type' => 'daily',
+                ],
+                [
+                    'basic_salary' => $totalProductionSalary,
+                    'bonus' => $bonus,
+                    'allowance' => $allowances,
+                    'additional_salary' => $additionalSalary,
+                    'deductions' => 0,
+                    'net_salary' => $grossSalary,
+                    'payment_status' => 'unpaid',
+                    'total_hours' => 0,
+                    'overtime_hours' => 0,
+                ]
+            );
+
+            session()->flash('message', 'Daily worker salary calculated successfully.');
+            return;
+        }
+
+        // MONTHLY workers salary calculation
+        if ($employeeSalaryType === 'monthly') {
+            $startOfMonth = Carbon::parse($salaryMonth . '-01')->startOfMonth();
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+
+            // Get attendance records for the month
+            $attendanceDetails = Attendance::where('employee_id', $employeeId)
+                ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                ->get();
+            
+            // Calculate totals
+            $workedHours = $attendanceDetails->sum('time_worked'); //for monthly workers, this is total worked hours
+            $leaveHours = $attendanceDetails->sum('late_hours'); // for monthly workers, this is total leave hours
+            $overtimeHours = $attendanceDetails->sum('over_time'); // for monthly workers, this is total overtime hours
+            $monthAttendance = $attendanceDetails->count("employee_id"); // month attendance
+            $primaryWorkedtime = $workedHours -$overtimeHours;
+
+            // Calculate basic salary based on worked hours
+            // $basicSalary = $employee->basic_salary;
+            if ($primaryWorkedtime < 195) {
+               if( $monthAttendance > 14 &&  $leaveHours < 122){
+                 $basicSalary = $employee->basic_salary;
+                 $bonus = ($leaveHours < 16) ? 6000 : 0;
+               }else{
+                 $basicSalary = $primaryWorkedtime * ($employee->basic_salary)/195;
+                 $bonus =  0;
+               }
+
+            }
+            else{
+                  $basicSalary = $employee->basic_salary;
+            }
+
+            // Apply attendance bonus if leave hours < 16 (less than 2 days)
+          
+
+            // Calculate overtime pay (1.5x rate)
+            $perHourRate = $employee->basic_salary / 195;
+            $overtimePay = $overtimeHours * ($perHourRate * 1.5);
+
+            $allowances = $employee->allowance;
+            $additionalSalary = $employee->additional_salary ?? 0;
+
+            $grossSalary = $basicSalary + $overtimePay + $bonus + $allowances + $additionalSalary;
+
+            $epf = ($basicSalary + $allowances) * 0.08;
+            $etf = $grossSalary * 0.03;
+
+            $loanDetails = Loans::where('employee_id', $employeeId)
+                ->where('remaining_balance', '>', 0)
+                ->first();
+
+            $loanDeductions = $loanDetails ? $loanDetails->monthly_payment : 0;
+            $this->perMomthLoanAmount = $loanDeductions;
+            $this->loanDetails = $loanDetails ? $loanDetails->remaining_balance : 0;
+
+            $otherDeductions = 0;
+            $deductions = $epf  + $loanDeductions + $otherDeductions;
+            $netSalary = $grossSalary - $deductions;
+
+            // dd($loanDeductions,$monthAttendance,"total worked Hours : $workedHours ","primary hours :  $primaryWorkedtime", "overtime Hours : $overtimeHours","leave Hours : $leaveHours", "basic Salary : $basicSalary", "bonus : $bonus", "overtime Pay : $overtimePay", "allowances : $allowances", "additional Salary : $additionalSalary", "gross Salary : $grossSalary", "epf : $epf", "etf : $etf", "loan Deductions : $loanDeductions", "other Deductions : $otherDeductions", "net Salary : $netSalary");
+            $this->salaryBreakdown = [
+                'basic_salary' => $basicSalary,
+                'production_bonus' => $bonus,
+                'overtime' => $overtimePay,
+                'allowances' => $allowances,
+                'additional_salary' => $additionalSalary ?? 0,
+                'gross_salary' => $grossSalary,
+                'epf' => $epf,
+                'etf' => $etf,
+                'loan_deductions' => $loanDeductions,
+                'other_deductions' => $otherDeductions,
+                'net_salary' => $netSalary,
+                'employee_name' => $employee->fname . ' ' . $employee->lname,
+                'month_name' => Carbon::create()->month($this->form['month'])->format('F'),
+                'year' => $this->form['year'],
+                'total_hours' => $primaryWorkedtime,
+                'overtime_hours' => $overtimeHours,
+            ];
+
+            $this->currentSalaryRecord = Salaries::updateOrCreate(
+                [
+                    'employee_id' => $employeeId,
+                    'salary_month' => $salaryMonth,
+                    'salary_type' => 'monthly',
+                ],
+                [
+                    'basic_salary' => $basicSalary,
+                    'bonus' => $bonus,
+                    'allowance' => $allowances,
+                    'overtime' => $overtimePay,
+                    'deductions' => $deductions,
+                    'net_salary' => $netSalary,
+                    'payment_status' => 'unpaid',
+                    'total_hours' => $workedHours,
+                    'overtime_hours' => $overtimeHours,
+                    // 'basic_worked' => $basicSalary,
+                ]
+            );
+
+            session()->flash('message', 'Monthly worker salary calculated successfully.');
+            return;
+        }
     }
-
-
-    // --------- Your existing MONTHLY workers salary logic ---------
-    // Example (replace with your actual monthly calculation logic)
-    $basicSalary = $employee->basic_salary;
-    $allowances = 5000; // replace with actual calc
-    $bonus = 2000; // replace with actual calc
-    $overtime = 0; // replace with actual calc
-    $epf = ($basicSalary * 0.08); // example EPF deduction
-    $etf = ($basicSalary * 0.03); // example ETF deduction
-    $grossSalary = $basicSalary + $allowances + $bonus + $overtime;
-    $netSalary = $grossSalary - $epf - $etf;
-
-    $this->salaryBreakdown = [
-        'basic_salary' => $basicSalary,
-        'production_bonus' => $bonus,
-        'overtime' => $overtime,
-        'allowances' => $allowances,
-        'gross_salary' => $grossSalary,
-        'epf' => $epf,
-        'etf' => $etf,
-        'loan_deductions' => 0,
-        'other_deductions' => 0,
-        'net_salary' => $netSalary,
-        'employee_name' => $employee->fname . ' ' . $employee->lname,
-        'month_name' => Carbon::create()->month($this->form['month'])->format('F'),
-        'year' => $this->form['year'],
-        'total_hours' => 0,
-        'overtime_hours' => 0,
-    ];
-
-    $this->currentSalaryRecord = Salaries::updateOrCreate(
-        [
-            'employee_id' => $employeeId,
-            'salary_month' => $salaryMonth,
-            'salary_type' => 'monthly',
-        ],
-        [
-            'basic_salary' => $basicSalary,
-            'bonus' => $bonus,
-            'allowance' => $allowances,
-            'overtime' => $overtime,
-            'deductions' => ($epf + $etf),
-            'net_salary' => $netSalary,
-            'payment_status' => 'unpaid',
-            'total_hours' => 0,
-            'overtime_hours' => 0,
-        ]
-    );
-
-    session()->flash('message', 'Monthly worker salary calculated successfully.');
-}
 
 
     public function markAsPaid()

@@ -78,24 +78,37 @@
 
                     <div class="flex justify-between py-3 border-b">
                         <span>
-                            Basic Salary ({{ $totalWorkedHours }} hours )
+                            Basic Salary ({{ number_format($salaryBreakdown['total_hours'], 2) }} hours )
                             {{-- {{ $salaryBreakdown['work_days'] }} days --}}
                         </span>
                         <span>LKR {{ number_format($salaryBreakdown['basic_salary'], 2) }}</span>
                     </div>
                     <div class="flex justify-between py-3 border-b">
                         <span>
+                            @if($salaryBreakdown['overtime'] > 0)
                             Overtime
                             @if($salaryBreakdown['overtime_hours'] > 0)
-                            <p class="text-xs text-gray-500 mt-1">
+                      
                                 {{ $salaryBreakdown['overtime_hours'] }} hours @ 1.5x rate
-                            </p>
+                            
+                            @endif
+                            @else
+                            Additional Salary
                             @endif
                         </span>
-                        <span>LKR {{ number_format($salaryBreakdown['overtime'], 2) }}</span>
+
+                        <span>
+                            LKR
+                            @if($salaryBreakdown['overtime'] > 0)
+                            {{ number_format($salaryBreakdown['overtime'], 2) }}
+                            @else
+                            {{-- {{ number_format($additional_salary, 2) ?? 0.00}} --}}
+                            @endif
+                        </span>
                     </div>
+
                     <div class="flex justify-between py-3 border-b">
-                        <span>Production Bonus</span>
+                        <span> Bonus</span>
                         <span>LKR {{ number_format($salaryBreakdown['production_bonus'], 2) }}</span>
                     </div>
 
@@ -371,7 +384,7 @@
                                     <td class="text-right">{{ number_format($salaryBreakdown['epf'], 2) }}</td>
                                 </tr>
 
-                                
+
                                 <tr>
                                     <td></td>
                                     <td>Loan Deductions</td>
@@ -615,10 +628,7 @@
                                 <span>EPF (8%):</span>
                                 <span>LKR ${epf.toFixed(2)}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>ETF (3%):</span>
-                                <span>LKR ${etf.toFixed(2)}</span>
-                            </div>
+                          
                             <div style="display: flex; justify-content: space-between;">
                                 <span>Loan Deductions:</span>
                                 <span>LKR ${loan_deductions.toFixed(2)}</span>
