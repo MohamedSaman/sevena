@@ -20,6 +20,7 @@ use App\Livewire\Admin\SettingManagement as AdminSettingManagement;
 use App\Livewire\Admin\LoanManagement as AdminLoanManagement;
 use App\Livewire\Admin\AttendanceManagement as AdminAttendanceManagement;
 use App\Livewire\Admin\StockManagemnt as AdminStockManagement;
+use App\Livewire\Admin\PackingManagement as AdminPackingManagement;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('/staff/loan-management', AdminLoanManagement::class)->name('loan-management');
         Route::get('/attendance-management', AdminAttendanceManagement::class)->name('attendance-management');
         Route::get('/stock-management', AdminStockManagement::class)->name('stock-management');
+        Route::get('/packing-management', AdminPackingManagement::class)->name('packing-management');
+
 
 
 

@@ -107,7 +107,65 @@
                 </table>
             </div>
         </div>
+         <!-- Packing Product Configuration -->
+        <div class="card p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Packing Product Configuration</h3>
+            @if (session()->has('packingMessage'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 2000)" class="mb-4 text-green-600">
+                {{ session('packingMessage') }}
+            </div>
+            @endif
 
+            <!-- Add New Product Form -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 class="text-md font-medium mb-3">Add New Packing Product</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Product Name</label>
+                        <input type="text" wire:model="newProductName" class="form-control w-full" placeholder="Enter product name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Rate (LKR)</label>
+                        <input type="number" wire:model="newProductRate" class="form-control w-full" placeholder="Rate">
+                    </div>
+                    <div class="flex items-end">
+                        <button wire:click="addPackingProduct" type="button" class="btn-primary px-4 py-2 rounded-lg">Add Product</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left px-4 py-3">Product</th>
+                            <th class="text-left px-4 py-3">Rate (LKR)</th>
+                            <th class="text-left px-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($packingProducts as $product)
+                        <tr>
+                            <td class="px-4 py-3">{{ $product['product_name'] }}</td>
+                            <td class="px-4 py-3">
+                                <input type="number"
+                                    wire:change="updatePackingProductRate({{ $product['id'] }}, $event.target.value)"
+                                    class="form-control w-24"
+                                    placeholder="{{ $product['per_rate'] }}">
+                            </td>
+                            <td class="px-4 py-3">
+                                <button wire:click="deletePackingProduct({{ $product['id'] }})"
+                                        class="text-red-600 hover:text-red-800 ml-2">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <!-- System Preferences -->
         <div class="card p-6">
             <h3 class="text-lg font-semibold mb-4">System Preferences</h3>
@@ -153,5 +211,7 @@
                 </div>
             </form>
         </div>
+       
+
     </div>
 </div>
