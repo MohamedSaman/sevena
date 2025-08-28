@@ -38,8 +38,8 @@ class ProductionManagement extends Component
 
     public function mount()
     {
-        // Load all work type rates with both magi_rate and papadam_rate
-        $this->workTypeRates = WorkTypeRate::all()->keyBy('work_type');
+        // Load all work type rates
+        $this->workTypeRates = WorkTypeRate::all();
         $this->dailyemployees = Employee::where('salary_type', 'daily')->get();
         $this->loadEmployees();
         $this->form['date'] = now()->format('Y-m-d');
@@ -64,7 +64,7 @@ class ProductionManagement extends Component
         $this->form['category'] = $tab;
         
         // Update the rate when tab changes if a work type is selected
-        if (!empty($this->form['work_type']) && isset($this->workTypeRates[$this->form['work_type']])) {
+        if (!empty($this->form['work_type'])) {
             $this->updateRateBasedOnTab();
             $this->calculateTotalSalary();
         }
@@ -91,11 +91,15 @@ class ProductionManagement extends Component
     
     protected function updateRateBasedOnTab()
     {
-        if (isset($this->workTypeRates[$this->form['work_type']])) {
-            $rateRecord = $this->workTypeRates[$this->form['work_type']];
+        $workType = $this->form['work_type'];
+        $rateRecord = WorkTypeRate::where('work_type', $workType)->first();
+        
+        if ($rateRecord) {
             $this->form['per_rate'] = ($this->activeTab === 'magi') 
                 ? $rateRecord->magi_rate 
                 : $rateRecord->papadam_rate;
+        } else {
+            $this->form['per_rate'] = 0;
         }
     }
     
@@ -116,7 +120,7 @@ class ProductionManagement extends Component
         // Validate form input
         $this->validate([
             'form.employee_id' => 'required|exists:employees,emp_id',
-            'form.work_type' => 'required|in:cutter,roller,dryer,packer,worker',
+            'form.work_type' => 'required',
             'form.category' => 'required|in:magi,papadam',
             'form.quantity' => 'required|numeric|min:0',
             'form.worked_quantity' => 'nullable|numeric|min:0|lte:form.quantity',
@@ -183,7 +187,7 @@ class ProductionManagement extends Component
         
         $this->validate([
             'form.employee_id' => 'required|exists:employees,emp_id',
-            'form.work_type' => 'required|in:cutter,roller,dryer,packer,worker',
+            'form.work_type' => 'required',
             'form.category' => 'required|in:magi,papadam',
             'form.quantity' => 'required|numeric|min:0',
             'form.worked_quantity' => 'nullable|numeric|min:0|lte:form.quantity',
@@ -258,6 +262,7 @@ class ProductionManagement extends Component
 
         return view('livewire.admin.production-management', [
             'records' => $records,
+            'workTypeRates' => $this->workTypeRates,
         ]);
     }
 }

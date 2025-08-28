@@ -136,11 +136,12 @@
                                 <i class="fas fa-industry text-gray-500 w-6 text-center"></i>
                                 <p class="text-[#0d151c] text-sm font-medium leading-normal">Production</p>
                             </a>
-                              <a href="{{ route('admin.packing-management') }}"
+                            <a href="{{ route('admin.packing-management') }}"
                                 class="nav-item {{ request()->routeIs('admin.packing-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
-                                <i class="fas fa-industry text-gray-500 w-6 text-center"></i>
-                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Packing </p>
+                                <i class="fas fa-box text-gray-500 w-6 text-center"></i>
+                                <p class="text-[#0d151c] text-sm font-medium leading-normal">Packing</p>
                             </a>
+
                             <a href="{{ route('admin.salary-management') }}"
                                 class="nav-item {{ request()->routeIs('admin.salary-management') ? 'active' : '' }} flex items-center gap-3 px-3 py-2">
                                 <i class="fas fa-money-bill-wave text-gray-500 w-6 text-center"></i>
