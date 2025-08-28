@@ -8,7 +8,9 @@ use Livewire\Attributes\Layout;
 use App\Models\PayrollSetting;
 use App\Models\SystemSetting;
 use App\Models\WorkTypeRate;
-use App\Models\PackingProduct; // ✅ Import packing product model
+use App\Models\PackingProduct;
+use App\Models\Department;
+use App\Models\Designation; // ✅ Import Designation model
 
 #[Title("Admin Setting Management")]
 #[Layout("components.layouts.admin")]
@@ -16,7 +18,7 @@ class SettingManagement extends Component
 {
     // Payroll settings
     public $epfRate, $etfRate, $taxThreshold, $taxRate;
-    
+
     // Production rates
     public $workTypes = [];
     public $newWorkType = '', $newMagiRate = '', $newPapadamRate = '';
@@ -24,6 +26,16 @@ class SettingManagement extends Component
     // Packing products
     public $packingProducts = [];
     public $newProductName = '', $newProductRate = '';
+
+    // Departments
+    public $departments = [];
+    public $newDepartmentName = '';
+    public $newDepartmentStatus = 'Active';
+
+    // Designations
+    public $designations = [];
+    public $newDesignationName = '';
+    public $newDesignationStatus = 'active';
 
     // System preferences
     public $enableEmailNotifications, $autoCalculateSalary, $enableTwoFactor;
@@ -46,6 +58,12 @@ class SettingManagement extends Component
         // Load packing products
         $this->refreshPackingProducts();
 
+        // Load departments
+        $this->refreshDepartments();
+
+        // Load designations
+        $this->refreshDesignations();
+
         // System preferences
         $this->enableEmailNotifications = SystemSetting::where('key', 'enable_email_notifications')->value('value') ?? '1';
         $this->autoCalculateSalary = SystemSetting::where('key', 'auto_calculate_salary')->value('value') ?? '1';
@@ -55,8 +73,25 @@ class SettingManagement extends Component
     }
 
     // 🔹 Refresh helpers
-    protected function refreshWorkTypes() { $this->workTypes = WorkTypeRate::all()->toArray(); }
-    protected function refreshPackingProducts() { $this->packingProducts = PackingProduct::all()->toArray(); }
+    protected function refreshWorkTypes()
+    {
+        $this->workTypes = WorkTypeRate::all()->toArray();
+    }
+    
+    protected function refreshPackingProducts()
+    {
+        $this->packingProducts = PackingProduct::all()->toArray();
+    }
+    
+    protected function refreshDepartments()
+    {
+        $this->departments = Department::all()->toArray();
+    }
+    
+    protected function refreshDesignations()
+    {
+        $this->designations = Designation::all()->toArray();
+    }
 
     // Payroll save
     public function savePayrollSettings()
@@ -170,6 +205,98 @@ class SettingManagement extends Component
             $product->delete();
             $this->refreshPackingProducts();
             session()->flash('packingMessage', 'Packing product deleted successfully.');
+        }
+    }
+
+    // 🔹 Department CRUD
+    public function addDepartment()
+    {
+        $this->validate([
+            'newDepartmentName' => 'required|string|max:255',
+            'newDepartmentStatus' => 'required|in:Active,Inactive',
+        ]);
+
+        Department::create([
+            'department_name' => $this->newDepartmentName,
+            'status' => $this->newDepartmentStatus,
+        ]);
+
+        session()->flash('departmentMessage', 'Department added successfully.');
+
+        // Reset form inputs
+        $this->reset(['newDepartmentName', 'newDepartmentStatus']);
+        $this->newDepartmentStatus = 'Active';
+
+        // Refresh departments
+        $this->refreshDepartments();
+    }
+
+    public function updateDepartmentStatus($id, $status)
+    {
+        $department = Department::find($id);
+
+        if ($department) {
+            $department->status = $status;
+            $department->save();
+            session()->flash('departmentMessage', 'Department status updated successfully.');
+            $this->refreshDepartments();
+        }
+    }
+
+    public function deleteDepartment($id)
+    {
+        $department = Department::find($id);
+
+        if ($department) {
+            $department->delete();
+            session()->flash('departmentMessage', 'Department deleted successfully.');
+            $this->refreshDepartments();
+        }
+    }
+
+    // 🔹 Designation CRUD
+    public function addDesignation()
+    {
+        $this->validate([
+            'newDesignationName' => 'required|string|max:255|unique:designations,designation',
+            'newDesignationStatus' => 'required|in:active,inactive',
+        ]);
+
+        Designation::create([
+            'designation' => $this->newDesignationName,
+            'status' => $this->newDesignationStatus,
+        ]);
+
+        session()->flash('designationMessage', 'Designation added successfully.');
+
+        // Reset form inputs
+        $this->reset(['newDesignationName', 'newDesignationStatus']);
+        $this->newDesignationStatus = 'active';
+
+        // Refresh designations
+        $this->refreshDesignations();
+    }
+
+    public function updateDesignationStatus($id, $status)
+    {
+        $designation = Designation::find($id);
+
+        if ($designation) {
+            $designation->status = $status;
+            $designation->save();
+            session()->flash('designationMessage', 'Designation status updated successfully.');
+            $this->refreshDesignations();
+        }
+    }
+
+    public function deleteDesignation($id)
+    {
+        $designation = Designation::find($id);
+
+        if ($designation) {
+            $designation->delete();
+            session()->flash('designationMessage', 'Designation deleted successfully.');
+            $this->refreshDesignations();
         }
     }
 

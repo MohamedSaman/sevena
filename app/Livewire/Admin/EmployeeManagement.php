@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Department;
+use App\Models\Designation;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Title;
@@ -233,10 +235,15 @@ public function render()
         });
     }
 
+    $departments = Department::where('status', 'Active')->pluck('department_name');
+    $designations = Designation::where('status', 'active')->pluck('designation');
+
     $employees = $employeesQuery->get();
 
     return view('livewire.admin.employee-management', [
-        'employees' => $employees
+        'employees' => $employees,
+        'departments' => $departments,
+        'designations' => $designations
     ]);
 }
 }

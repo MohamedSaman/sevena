@@ -156,18 +156,33 @@
                     <h3 class="text-base sm:text-lg font-semibold text-gray-700">Job Information</h3>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Department</label>
-                        <input type="text" wire:model.defer="department"
+                        <select wire:model.defer="department"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             required>
-                        @error('department') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            <option value="">-- Select Department --</option>
+                            @foreach($departments as $dept)
+                            <option value="{{ $dept }}">{{ $dept }}</option>
+                            @endforeach
+                        </select>
+                        @error('department')
+                        <span class="text-xs text-red-500">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Designation</label>
-                        <input type="text" wire:model.defer="designation"
+                        <select wire:model.defer="designation"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             required>
-                        @error('designation') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            <option value="">-- Select Designation --</option>
+                            @foreach($designations as $id => $name)
+                            <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        @error('designation')
+                        <span class="text-xs text-red-500">{{ $message }}</span>
+                        @enderror
                     </div>
+
                     <div>
                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Salary Type</label>
                         <select wire:model.defer="salary_type"
@@ -176,6 +191,8 @@
                             <option value="">Select Salary Type</option>
                             <option value="daily">Daily</option>
                             <option value="monthly">Monthly</option>
+                            <option value="monthly">Contract</option>
+
                         </select>
                         @error('salary_type') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
@@ -354,24 +371,36 @@
                             <div>
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-700">Job Information</h3>
                                 <div class="space-y-3 mt-2">
-                                    <div>
-                                        <label
-                                            class="block text-xs sm:text-sm font-medium text-gray-700">Department</label>
-                                        <input type="text" wire:model="department"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                            required>
-                                        @error('department') <span class="text-xs text-red-500">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="block text-xs sm:text-sm font-medium text-gray-700">Designation</label>
-                                        <input type="text" wire:model="designation"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                            required>
-                                        @error('designation') <span class="text-xs text-red-500">{{ $message }}</span>
-                                        @enderror
-                                    </div>
+                                   <div>
+    <label class="block text-xs sm:text-sm font-medium text-gray-700">Department</label>
+    <select wire:model="department"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        required>
+        <option value="">-- Select Department --</option>
+        @foreach($departments as $id => $name)
+            <option value="{{ $id }}">{{ $name }}</option>
+        @endforeach
+    </select>
+    @error('department') 
+        <span class="text-xs text-red-500">{{ $message }}</span> 
+    @enderror
+</div>
+
+<div>
+    <label class="block text-xs sm:text-sm font-medium text-gray-700">Designation</label>
+    <select wire:model="designation"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        required>
+        <option value="">-- Select Designation --</option>
+        @foreach($designations as $id => $name)
+            <option value="{{ $id }}">{{ $name }}</option>
+        @endforeach
+    </select>
+    @error('designation') 
+        <span class="text-xs text-red-500">{{ $message }}</span> 
+    @enderror
+</div>
+
                                     <div>
                                         <label class="block text-xs sm:text-sm font-medium text-gray-700">Salary
                                             Type</label>
@@ -521,7 +550,7 @@
                                     $department }}</p>
                                 <p class="text-sm text-gray-600"><span class="font-medium">Salary Type:</span> {{
                                     $salary_type ? ucfirst($salary_type) : 'N/A' }}</p>
-                                
+
                                 <p class="text-sm text-gray-600"><span class="font-medium">Basic Salary:</span> {{
                                     $basic_salary ? number_format($basic_salary, 2) : 'N/A' }}</p>
 
