@@ -227,10 +227,12 @@
                             </select>
                         </div>
                         <div>
-                            <label for="packing-salary" class="block text-sm font-medium text-gray-700 mb-1">Salary Amount</label>
+                            <label for="packing-salary" class="block text-sm font-medium text-gray-700 mb-1">Total Salary Amount</label>
                             <input id="packing-salary" name="salary" type="number" min="0" step="0.01" x-model.number="form.salary"
                                    class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <p class="text-xs text-gray-500 mt-1">Auto-fills as (rate × quantity). You can override.</p>
+                            <p class="text-xs text-gray-500 mt-1" x-show="selectedEmployees.length > 0">
+                                Per employee: <span x-text="formatMoney(form.salary / selectedEmployees.length)"></span>
+                            </p>
                         </div>
                     </div>
                     <button @click="addRecord()"
@@ -353,6 +355,10 @@
 
                     const product = this.productById(this.form.product_id);
                     const productName = product ? product.product_name : '';
+                    
+                    // Calculate salary per employee
+                    const totalSalary = Number(this.form.salary);
+                    const salaryPerEmployee = totalSalary / this.selectedEmployees.length;
 
                     // Push a row for each selected employee
                     this.selectedEmployees.forEach(emp => {
@@ -364,7 +370,7 @@
                             date: this.form.date,
                             quantity: Number(this.form.quantity),
                             session: this.form.session,
-                            salary: Number(this.form.salary),
+                            salary: salaryPerEmployee,
                             adjustment: 0
                         });
                     });
