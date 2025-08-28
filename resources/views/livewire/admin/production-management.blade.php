@@ -47,11 +47,9 @@
                         <select wire:model="form.work_type"
                             class="form-control w-full border border-gray-300 rounded-md p-2">
                             <option value="">Select Role</option>
-                            <option value="cutter">Cutter</option>
-                            <option value="roller">Roller</option>
-                            <option value="dryer">Dryer</option>
-                            <option value="packer">Packer</option>
-                            <option value="worker">Worker</option>
+                            @foreach ($workTypeRates as $rate)
+                            <option value="{{ $rate->work_type }}">{{ ucfirst($rate->work_type) }}</option>
+                            @endforeach
                         </select>
                         @error('form.work_type') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
                     </div>

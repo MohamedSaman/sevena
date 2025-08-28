@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Employee;
 use App\Models\Loans;
 use App\Models\ProductionSalaries;
-use App\Models\salaries;
+use App\Models\Salaries;
 use Carbon\Carbon;
 
 #[Layout('components.layouts.admin')]
@@ -75,7 +75,7 @@ class AdminDashboard extends Component
                 })
             )
             ->merge(
-                salaries::with(['employee' => function ($query) {
+                Salaries::with(['employee' => function ($query) {
                     $query->select('emp_id', 'fname');
                 }])
                 ->select('employee_id', 'payment_status', 'created_at')
